@@ -1,12 +1,42 @@
 goog.provide('topos.world.Textures');
-goog.require('topos.gl.util.GL');
+goog.require('topos.gl.util.GlUtil');
 
 goog.scope(function() {
 
 var tex = topos.world.Textures;
 
-tex.CreateGroundTexture = function(gl) {
-  var size = 64;
+tex.LoadAllTextures = function(engine) {
+  var textures = {};
+
+  textures.ground = engine.CreateTexture(
+      1,
+      engine.GetCtx().RGB,
+      [100, 150, 30]);
+
+  //textures.ground = engine.CreateTexture(
+  //    64,
+  //    engine.GetCtx().RGB,
+  //    tex.CreateGroundTextureData(64));
+
+  textures.sky = engine.CreateTexture(
+      1,
+      engine.GetCtx().RGB,
+      [119, 181, 254]);
+
+  textures.wireframe = engine.CreateTexture(
+      256,
+      engine.GetCtx().RGBA,
+      tex.CreateWireframeTextureData(256));
+
+  textures.sea = engine.CreateTexture(
+      1,
+      engine.GetCtx().RGB,
+      [0, 80, 150]);
+
+  return textures;
+}
+
+tex.CreateGroundTextureData = function(size) {
   var seed_bytes = [];
   for (var i = 0; i < size; i++) {
     for (var j = 0; j < size; j++) {
@@ -39,36 +69,31 @@ tex.CreateGroundTexture = function(gl) {
     }
   }
 
-  return tex.CreateTexture(gl, size, bytes);
+  return bytes;
 }
 
-tex.CreateSkyTexture = function(gl) {
-  var size = 1;
-  var bytes = [119, 181, 254];
-
-  return tex.CreateTexture(gl, size, bytes);
+tex.CreateWireframeTextureData = function(size) {
+  var bytes = [];
+  for (var i = 0; i < size; i++) {
+    for (var j = 0; j < size; j++) {
+      if (i < size / 64 ||
+          j < size / 64 ||
+          i >= size - size / 64 ||
+          j >= size - size / 64 ||
+          Math.abs(i - j) < size / 64) {
+        bytes.push(0);
+        bytes.push(0);
+        bytes.push(0);
+        bytes.push(255);
+      } else {
+        bytes.push(0);
+        bytes.push(0);
+        bytes.push(0);
+        bytes.push(0);
+      }
+    }
+  }
+  return bytes;
 }
 
-tex.CreateTexture = function(gl, size, bytes) {
-  var texture = gl.ctx.createTexture();
-  gl.ctx.bindTexture(gl.ctx.TEXTURE_2D, texture);
-  gl.ctx.texImage2D(
-      gl.ctx.TEXTURE_2D,
-      0,
-      gl.ctx.RGB,
-      size, size,
-      0,
-      gl.ctx.RGB,
-      gl.ctx.UNSIGNED_BYTE,
-      new Uint8Array(bytes));
-  gl.ctx.texParameteri(
-      gl.ctx.TEXTURE_2D,
-      gl.ctx.TEXTURE_MAG_FILTER,
-      gl.ctx.LINEAR);
-  gl.ctx.texParameteri(
-      gl.ctx.TEXTURE_2D,
-      gl.ctx.TEXTURE_MIN_FILTER,
-      gl.ctx.NEAREST);
-  return texture;
-}
 });  // goog.scope
