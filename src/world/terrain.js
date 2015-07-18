@@ -34,7 +34,7 @@ world.Terrain = function(height_map, height, size, ground_texture) {
       sz *= 2;
     }
 
-    return new la.Vector([-sx, -200, sz]).Normalize();
+    return new la.Vector([-sx, -10, sz]).Normalize();
   }
 
   this.vertices = [];
@@ -88,8 +88,8 @@ world.Terrain.prototype.CreateMesh = function(gl) {
 world.Terrain.GenerateHeightMap = function(width, depth) {
   var height_map = [];
 
-  var mag1 = 5000;
-  var mag2 = 100;
+  var mag1 = 2500;
+  var mag2 = 250;
   var mag3 = 10;
 
   for (var z = 0; z < depth; z++) {

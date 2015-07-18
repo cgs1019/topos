@@ -6,8 +6,8 @@ goog.scope(function() {
 var gl_util = topos.gl.util;
 var la = topos.math.LinearAlgebra;
 
-gl_util.GlUtil = function(aspect, canvas) {
-  this.aspect = aspect;
+gl_util.GlUtil = function(canvas, perspective_matrix) {
+  this.perspective_matrix = perspective_matrix;
   this.canvas = canvas;
   this.ctx = canvas.getContext("experimental-webgl") ||
       canvas.getContext("webgl");
@@ -16,17 +16,15 @@ gl_util.GlUtil = function(aspect, canvas) {
 gl_util.GlUtil.prototype.Initialize = function() {
   this.shader_vars = this.InitShaders();
 
-  this.ctx.clearColor(119 / 256, 181 / 256, 254 / 256, 1.0);
+  this.ctx.clearColor(.47, .71, .99, 1.0);
   this.ctx.enable(this.ctx.DEPTH_TEST);
   this.ctx.depthFunc(this.ctx.LESS);
   this.ctx.viewport(0, 0, this.canvas.width, this.canvas.height);
 
-  var perspective_matrix =
-      la.SquareMatrix.MakePerspective(45, this.aspect, 1);
   this.ctx.uniformMatrix4fv(
       this.shader_vars.perspective_matrix,
       false,
-      perspective_matrix.AsFloat32Array());
+      this.perspective_matrix.AsFloat32Array());
 
   // resize the canvas to fill browser window dynamically
   var self = this;
@@ -174,8 +172,10 @@ gl_util.GlUtil.prototype.DrawMesh = function(mesh) {
   this.ctx.vertexAttribPointer(
       this.shader_vars.texture_coord, 2, this.ctx.FLOAT, false, 0, 0);
 
-  this.ctx.uniform1i(this.shader_vars.use_lighting,
+  this.ctx.uniform1i(
+      this.shader_vars.use_lighting,
       mesh.normals_buffer != null);
+
   if (mesh.normals_buffer != null) {
     this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, mesh.normals_buffer);
     this.ctx.vertexAttribPointer(

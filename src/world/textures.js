@@ -8,15 +8,16 @@ var tex = topos.world.Textures;
 tex.LoadAllTextures = function(engine) {
   var textures = {};
 
-  textures.ground = engine.CreateTexture(
-      1,
-      engine.GetCtx().RGB,
-      [100, 150, 30]);
-
   //textures.ground = engine.CreateTexture(
-  //    64,
+  //    1,
   //    engine.GetCtx().RGB,
-  //    tex.CreateGroundTextureData(64));
+  //    [100, 150, 30]);
+
+  textures.ground = engine.CreateTexture(
+      64,
+      engine.GetCtx().RGB,
+      tex.CreateGroundTextureData(64),
+      true  /* wrap */);
 
   textures.sky = engine.CreateTexture(
       1,

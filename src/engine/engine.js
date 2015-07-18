@@ -12,9 +12,8 @@ var input = topos.input;
 var la = topos.math.LinearAlgebra;
 var world = topos.world;
 
-engine.Engine = function(canvas, initial_position) {
-  var aspect = 16 / 9;
-  this.gl_util = new util.GlUtil(aspect, canvas);
+engine.Engine = function(canvas, initial_position, perspective_matrix) {
+  this.gl_util = new util.GlUtil(canvas, perspective_matrix);
 
   var light_direction = new la.Vector([-1, -1, 0]).Normalize();
 
@@ -39,7 +38,11 @@ engine.Engine.prototype.GetCtx = function() {
   return this.gl_util.ctx;
 }
 
-engine.Engine.prototype.CreateTexture = function(size, color_data_type, color_data) {
+engine.Engine.prototype.CreateTexture = function(
+    size, color_data_type, color_data, wrap) {
+  if (wrap === undefined) {
+    wrap = false;
+  }
   var texture = this.gl_util.ctx.createTexture();
   this.gl_util.ctx.bindTexture(this.gl_util.ctx.TEXTURE_2D, texture);
 
@@ -66,15 +69,27 @@ engine.Engine.prototype.CreateTexture = function(size, color_data_type, color_da
       this.gl_util.ctx.TEXTURE_MIN_FILTER,
       this.gl_util.ctx.NEAREST);
 
-  this.gl_util.ctx.texParameteri(
-      this.gl_util.ctx.TEXTURE_2D,
-      this.gl_util.ctx.TEXTURE_WRAP_T,
-      this.gl_util.ctx.CLAMP_TO_EDGE);
+  if (!wrap) {
+    this.gl_util.ctx.texParameteri(
+        this.gl_util.ctx.TEXTURE_2D,
+        this.gl_util.ctx.TEXTURE_WRAP_T,
+        this.gl_util.ctx.CLAMP_TO_EDGE);
 
-  this.gl_util.ctx.texParameteri(
-      this.gl_util.ctx.TEXTURE_2D,
-      this.gl_util.ctx.TEXTURE_WRAP_S,
-      this.gl_util.ctx.CLAMP_TO_EDGE);
+    this.gl_util.ctx.texParameteri(
+        this.gl_util.ctx.TEXTURE_2D,
+        this.gl_util.ctx.TEXTURE_WRAP_S,
+        this.gl_util.ctx.CLAMP_TO_EDGE);
+  } else {
+    this.gl_util.ctx.texParameteri(
+        this.gl_util.ctx.TEXTURE_2D,
+        this.gl_util.ctx.TEXTURE_WRAP_T,
+        this.gl_util.ctx.REPEAT);
+
+    this.gl_util.ctx.texParameteri(
+        this.gl_util.ctx.TEXTURE_2D,
+        this.gl_util.ctx.TEXTURE_WRAP_S,
+        this.gl_util.ctx.REPEAT);
+  }
 
   return texture;
 }

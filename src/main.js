@@ -28,12 +28,12 @@ main.Start = function() {
 
   var textures = tex.LoadAllTextures(main_engine);
   var objects = main.CreateObjects(textures);
-  var scene = main_engine.GetScene();
-  for (var i in objects) {
-    var obj = objects[i];
-    console.log(i + "'s triangle count: " + (obj.vertices.length / 9));
-    scene.AddObject(obj);
-  }
+  //var scene = main_engine.GetScene();
+  //for (var i in objects) {
+  //  var obj = objects[i];
+  //  console.log(i + "'s triangle count: " + (obj.vertices.length / 9));
+  //  scene.AddObject(obj);
+  //}
 
   main_engine.Run();
 }
@@ -48,8 +48,8 @@ main.CreateObjects = function(textures) {
       world.Terrain.GenerateHeightMap(512, 512),
       1,  // height
       20000,  // size
-      textures.wireframe);
-      //textures.ground);
+      //textures.wireframe);
+      textures.ground);
   terrain.normals = null;
 
   //var terrain = new world.Lindstrom(
@@ -60,8 +60,8 @@ main.CreateObjects = function(textures) {
   //    {});
 
   return {
-    'Terrain': terrain//,
-    //'Sea': sea
+    'Terrain': terrain,
+    'Sea': sea
   };
 }
 
