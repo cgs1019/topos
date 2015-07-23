@@ -6,8 +6,8 @@ goog.scope(function() {
 var world = topos.world;
 var la = topos.math.LinearAlgebra;
 
-world.Scene = function(gl, position_matrix, light_direction) {
-  this.gl = gl;
+world.Scene = function(gl_util, position_matrix, light_direction) {
+  this.gl_util = gl_util;
   this.position_matrix = position_matrix;
   this.light_direction = light_direction;
   this.objects = [];
@@ -15,17 +15,17 @@ world.Scene = function(gl, position_matrix, light_direction) {
 }
 
 world.Scene.prototype.AddObject = function(obj) {
-  this.objects.push(obj.CreateMesh(this.gl));
+  this.objects.push(obj);
 }
 
 world.Scene.prototype.Draw = function() {
-  this.gl.ctx.clear(
-      this.gl.ctx.COLOR_BUFFER_BIT | this.gl.ctx.DEPTH_BUFFER_BIT);
-  this.gl.SetPositionMatrix(this.position_matrix);
+  this.gl_util.ctx.clear(
+      this.gl_util.ctx.COLOR_BUFFER_BIT | this.gl_util.ctx.DEPTH_BUFFER_BIT);
+  this.gl_util.SetPositionMatrix(this.position_matrix);
 
-  this.gl.SetDirectionalLight(this.light_direction);
+  this.gl_util.SetDirectionalLight(this.light_direction);
   for (var i in this.objects) {
-    this.gl.DrawMesh(this.objects[i]);
+    this.objects[i].Draw();
   }
 }
 

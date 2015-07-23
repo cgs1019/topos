@@ -6,9 +6,10 @@ goog.scope(function() {
 var gl_util = topos.gl.util;
 var la = topos.math.LinearAlgebra;
 
-gl_util.GlUtil = function(canvas, perspective_matrix) {
-  this.perspective_matrix = perspective_matrix;
+gl_util.GlUtil = function(canvas, aspect, perspective_matrix) {
   this.canvas = canvas;
+  this.aspect = aspect;
+  this.perspective_matrix = perspective_matrix;
   this.ctx = canvas.getContext("experimental-webgl") ||
       canvas.getContext("webgl");
 }

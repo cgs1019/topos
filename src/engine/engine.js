@@ -12,8 +12,8 @@ var input = topos.input;
 var la = topos.math.LinearAlgebra;
 var world = topos.world;
 
-engine.Engine = function(canvas, initial_position, perspective_matrix) {
-  this.gl_util = new util.GlUtil(canvas, perspective_matrix);
+engine.Engine = function(canvas, aspect, initial_position, perspective_matrix) {
+  this.gl_util = new util.GlUtil(canvas, aspect, perspective_matrix);
 
   var light_direction = new la.Vector([-1, -1, 0]).Normalize();
 
@@ -103,7 +103,7 @@ engine._Loop = function(gl_util, input_handler, scene) {
 engine._Loop.prototype.Run = function(previous_time) {
   var self = this;
   var current_time = Date.now();
-  window.requestAnimationFrame(function() {self.Run(current_time)});
+  //window.requestAnimationFrame(function() {self.Run(current_time)});
   var dt = (current_time - previous_time) / 1000.0;
   this.input_handler.Move(dt);
   this.scene.Animate(dt);

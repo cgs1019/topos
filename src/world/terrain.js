@@ -7,7 +7,8 @@ goog.scope(function() {
 var la = topos.math.LinearAlgebra;
 var world = topos.world;
 
-world.Terrain = function(height_map, height, size, ground_texture) {
+world.Terrain = function(gl_util, height_map, height, size, ground_texture) {
+  this.gl_util = gl_util;
   this.texture = ground_texture;
   this.transformation_matrix =
       la.SquareMatrix.MakeTransform(0, 0, 0, 0);
@@ -54,7 +55,7 @@ world.Terrain = function(height_map, height, size, ground_texture) {
         for (var vert_idx in tri) {
           var vert = tri[vert_idx];
           this.vertices.push(-size / 2 + vert[0] * size / width)
-          this.vertices.push(-50 + height_map[vert[0]][vert[1]]);
+          this.vertices.push(-50 + height_map[vert[1]][vert[0]]);
           this.vertices.push(-size / 2 + vert[1] * size / depth)
 
           var normal = compute_normal(vert[0], vert[1]);
@@ -73,11 +74,17 @@ world.Terrain = function(height_map, height, size, ground_texture) {
                                0, 0,  1, 1,  1, 0);
     }
   }
+
+  this.mesh = this.CreateMesh(gl_util);
 }
 
-world.Terrain.prototype.CreateMesh = function(gl) {
+world.Terrain.prototype.Draw = function() {
+  this.gl_util.DrawMesh(this.mesh);
+}
+
+world.Terrain.prototype.CreateMesh = function(gl_util) {
   return new topos.gl.Mesh(
-    gl,
+    gl_util,
     this.vertices,
     this.texture_coords,
     this.texture,

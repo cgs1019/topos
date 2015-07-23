@@ -1,9 +1,15 @@
 goog.provide('topos.math.Util');
+goog.require('topos.math.LinearAlgebra.Vector');
 
 goog.scope(function() {
+
 var math = topos.math;
+var la = topos.math.LinearAlgebra;
 
 math.Util.CheckPowerOfTwo = function(a) {
+  if (a != a) {  // true for Nan
+    return false;
+  }
   if (a < 0) {
     return math.Util.CheckPowerOfTwo(-a);
   }
@@ -54,6 +60,32 @@ math.Util.CombineBoundingBoxes = function(b1, b2, b3, b4) {
         Math.max(b1[1][2], b2[1][2], b3[1][2], b4[1][2])
       ]
   ];
+}
+
+math.Util.ComputeProjectedError = function(
+    eye, triangle, mid_point, vertices) {
+  var v1y = vertices[triangle[1][0]][triangle[1][1]].coords[1];
+  var v2y = vertices[triangle[2][0]][triangle[2][1]].coords[1];
+
+  var hpy = .5 * (v1y + v2y)
+  var mpv = new la.Vector(vertices[mid_point[0]][mid_point[1]].coords.slice());
+  mpv.size = 4;
+  mpv.data.push(1.0);
+
+  var delta = Math.abs(mpv.data[1] - hpy);
+
+  var dv = eye.Difference(mpv);
+
+  var dx2 = dv.data[0] * dv.data[0];
+  var dy2 = dv.data[1] * dv.data[1];
+  var dz2 = dv.data[2] * dv.data[2];
+
+  var delta_screen =
+      Math.sqrt(delta * delta * (dx2 + dy2) / Math.pow(dx2 + dy2 + dz2, 2));
+
+  console.log(triangle[0], triangle[1], triangle[2], mid_point);
+  console.log(1300 * delta_screen);
+  return delta_screen;
 }
 
 });
