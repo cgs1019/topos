@@ -1,18 +1,18 @@
 goog.provide('topos.test');
-
 goog.require('topos.engine.Engine');
-goog.require('topos.world.Lindstrom');
-goog.require('topos.world.Terrain');
+goog.require('topos.world.terrain.Terrain');
 goog.require('topos.world.Textures');
 goog.require('topos.math.LinearAlgebra.SquareMatrix');
+goog.require('topos.math.Lindstrom');
 
 goog.scope(function() {
 
 var engine_lib = topos.engine;
+var la = topos.math.LinearAlgebra;
+var math = topos.math;
 var test = topos.test;
 var tex = topos.world.Textures;
-var world = topos.world;
-var la = topos.math.LinearAlgebra;
+var terrain = topos.world.terrain;
 
 test.Start = function() {
   Math.seedrandom("cgs");
@@ -20,48 +20,42 @@ test.Start = function() {
   var aspect = 16 / 9;
   var canvas = document.getElementById("canvas");
 
-  var position_matrix = la.SquareMatrix.MakeTransform(
-      0, -10000, -40000, 0);
+  var position_matrix = la.SquareMatrix.MakeTransform(0, -1000, -1000, 3 * Math.PI / 8);
   var perspective_matrix = la.SquareMatrix.MakePerspective(45, aspect, 1);
 
   var main_engine = new engine_lib.Engine(
-      canvas, aspect, position_matrix, perspective_matrix);
+      canvas, aspect, position_matrix, perspective_matrix,
+      false  /* debug */);
   main_engine.Initialize();
 
-  main_engine.gl_util.EnableBlending();
+  //main_engine.EnableBlending();
 
   var textures = tex.LoadAllTextures(main_engine);
   var objects = test.CreateObjects(
-      main_engine.gl_util, textures, position_matrix, perspective_matrix);
-  var scene = main_engine.GetScene();
+      main_engine.ctx, textures, position_matrix, perspective_matrix);
+  var scene = main_engine.scene;
   for (var i in objects) {
     var obj = objects[i];
+    console.log("Adding obj " + i);
     scene.AddObject(obj);
   }
 
   main_engine.Run();
 }
 
-test.CreateObjects = function(gl_util, textures, position_matrix, perspective_matrix) {
-  var lindstrom = new world.Lindstrom(
-      gl_util,
-      world.Lindstrom.GenerateTestHeightMap(5, 20000),
-      //world.Terrain.GenerateHeightMap(17, 17),
-      20000,
-      textures.wireframe,
+test.CreateObjects = function(ctx, textures, position_matrix, perspective_matrix) {
+  var extent = 20000;
+  var terrain_obj = new terrain.Terrain(
+      ctx,
+      math.Lindstrom.GenerateTestHeightMap(5, extent),
+      extent,
+      //textures.wireframe,
+      textures.ground,
       position_matrix,
-      perspective_matrix,
-      {});
-
-  //var lindstrom = new world.Terrain(
-  //    gl_util,
-  //    world.Lindstrom.GenerateTestHeightMap(33),
-  //    1,
-  //    20000,
-  //    textures.wireframe);
+      perspective_matrix);
 
   return {
-    'Lindstrom': lindstrom
+    'Terrain': terrain_obj
   };
 }
 

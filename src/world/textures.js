@@ -1,5 +1,4 @@
 goog.provide('topos.world.Textures');
-goog.require('topos.gl.util.GlUtil');
 
 goog.scope(function() {
 
@@ -10,28 +9,28 @@ tex.LoadAllTextures = function(engine) {
 
   //textures.ground = engine.CreateTexture(
   //    1,
-  //    engine.GetCtx().RGB,
+  //    engine.ctx.RGB,
   //    [100, 150, 30]);
 
   textures.ground = engine.CreateTexture(
       64,
-      engine.GetCtx().RGB,
+      engine.ctx.RGB,
       tex.CreateGroundTextureData(64),
       true  /* wrap */);
 
   textures.sky = engine.CreateTexture(
       1,
-      engine.GetCtx().RGB,
+      engine.ctx.RGB,
       [119, 181, 254]);
 
   textures.wireframe = engine.CreateTexture(
       256,
-      engine.GetCtx().RGBA,
+      engine.ctx.RGBA,
       tex.CreateWireframeTextureData(256));
 
   textures.sea = engine.CreateTexture(
       1,
-      engine.GetCtx().RGB,
+      engine.ctx.RGB,
       [0, 80, 150]);
 
   return textures;
