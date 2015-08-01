@@ -75,56 +75,25 @@ terrain.Terrain.GenerateVerts = function(height_map, extent) {
 }
 
 terrain.Terrain.prototype.Draw = function() {
-  console.log("Drawing terrain");
-  //this.ctx.useProgram(this.shader_program);
+  this.ctx.useProgram(this.shader_program);
   this.shader_vars = gl.GlUtil.GetShaderVars(
       this.ctx, this.shader_program, this.shader_vars_info);
 
-  //var eye = new la.Vector([0, 0, 0, 1])
-  //    .MatrixMultiply(this.position_matrix.Transpose());
-  //var vertex_data = this.lindstrom.GetVertexData(eye);
-  var vertex_data = {
-    vertices: [
-      -10000, -100,  -10000,
-      -10000, -100,  10000,
-       10000, -100,  10000,
-
-      -10000, -100,  -10000,
-       10000, -100,  10000,
-       10000, -100,  -10000
-    ],
-    texture_coords: [
-      0, 0, 0, 1, 1, 1,
-      0, 0, 1, 1, 1, 0
-    ]
-  };
+  var eye = new la.Vector([0, 0, 0, 1])
+      .MatrixMultiply(this.position_matrix.Transpose());
+  var vertex_data = this.lindstrom.GetVertexData(eye);
 
   this.ctx.enableVertexAttribArray(this.shader_vars.vertex_coord);
   this.ctx.enableVertexAttribArray(this.shader_vars.texture_coord);
 
-  this.num_vertices = vertex_data.vertices.length / 3;
-  this.vert_buffer = this.ctx.createBuffer();
-  this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, this.vert_buffer);
-  console.log(vertex_data.vertices);
-  console.log(this.num_vertices);
-  this.ctx.bufferData(
-      this.ctx.ARRAY_BUFFER,
-      new Float32Array(vertex_data.vertices),
-      this.ctx.STATIC_DRAW);
-  this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, null);
+  var num_vertices = vertex_data.vertices.length / 3;
+  var vert_buffer = this.ctx.createBuffer();
+  var texture_coords_buffer = this.ctx.createBuffer();
 
-  console.log(vertex_data.texture_coords);
-  this.texture_coords_buffer = this.ctx.createBuffer();
-  this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, this.texture_coords_buffer);
-  this.ctx.bufferData(
-      this.ctx.ARRAY_BUFFER,
-      new Float32Array(vertex_data.texture_coords),
-      this.ctx.STATIC_DRAW);
-  this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, null);
-
-  this.ctx.activeTexture(this.ctx.TEXTURE0);
-  this.ctx.bindTexture(this.ctx.TEXTURE_2D, this.texture);
-  this.ctx.uniform1i(this.shader_vars.u_sampler, 0);
+  this.ctx.uniformMatrix4fv(
+      this.shader_vars.position_matrix,
+      false,
+      this.position_matrix.AsFloat32Array());
 
   this.ctx.uniformMatrix4fv(
       this.shader_vars.perspective_matrix,
@@ -136,15 +105,33 @@ terrain.Terrain.prototype.Draw = function() {
       false,
       this.transformation_matrix.AsFloat32Array());
 
-  this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, this.vert_buffer);
+  this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, vert_buffer);
+  this.ctx.bufferData(
+      this.ctx.ARRAY_BUFFER,
+      new Float32Array(vertex_data.vertices),
+      this.ctx.STATIC_DRAW);
+  this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, null);
+
+  this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, texture_coords_buffer);
+  this.ctx.bufferData(
+      this.ctx.ARRAY_BUFFER,
+      new Float32Array(vertex_data.texture_coords),
+      this.ctx.STATIC_DRAW);
+  this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, null);
+
+  this.ctx.activeTexture(this.ctx.TEXTURE0);
+  this.ctx.bindTexture(this.ctx.TEXTURE_2D, this.texture);
+  this.ctx.uniform1i(this.shader_vars.u_sampler, 0);
+
+  this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, vert_buffer);
   this.ctx.vertexAttribPointer(
       this.shader_vars.vertex_coord, 3, this.ctx.FLOAT, false, 0, 0);
 
-  this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, this.texture_coords_buffer);
+  this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, texture_coords_buffer);
   this.ctx.vertexAttribPointer(
       this.shader_vars.texture_coord, 2, this.ctx.FLOAT, false, 0, 0);
 
-  this.ctx.drawArrays(this.ctx.TRIANGLES, 0, this.num_vertices);
+  this.ctx.drawArrays(this.ctx.TRIANGLES, 0, num_vertices);
 }
 
 });  // goog.scope
